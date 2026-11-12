@@ -96,10 +96,17 @@ item size and column count on its own.
 - **Keep-alives widen the range.** The range comes from the sliver's element
   map, which also holds `AutomaticKeepAlive` children. A kept-alive child far
   off screen stretches the reported range to reach it.
-- **One prefetcher per sliver.** It remembers one range.
-- **Empty slivers.** With a `childCount` of 0 nothing is reported. With an
-  unknown count and no children, Flutter reports `(0, 0)`, which reads as
-  child 0 being laid out.
+- **One prefetcher per sliver.** It remembers one range, so two slivers
+  sharing one overwrite each other's.
+- **Only built children are known.** A sliver scrolled wholly past the
+  viewport builds nothing, so it reports nothing and keeps what it had asked
+  for; when it comes back, the end it reappears at sets the direction. A
+  sliver waiting *below* the viewport is different: Flutter builds its first
+  child, so its look-ahead starts before it scrolls in.
+- **Each child gets a wrapper.** The delegate wraps every child in a small
+  stateful widget that carries the child's key, to tell a layout that built
+  child 0 from one that built nothing (Flutter reports both as `(0, 0)`).
+  Keyed reordering and `findChildIndexCallback` keep working.
 
 ## Example
 

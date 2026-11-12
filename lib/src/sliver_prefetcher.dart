@@ -71,6 +71,7 @@ class SliverPrefetcher {
   int? _childCount;
   ScrollTravel _travel = ScrollTravel.forward;
   Set<int> _outstanding = const {};
+  bool _returningFromNothingBuilt = false;
 
   /// Whether the prefetcher reports anything.
   ///
@@ -101,9 +102,18 @@ class SliverPrefetcher {
         ? const IndexRange(0, 0)
         : IndexRange.laidOut(firstIndex, lastIndex);
     final previous = _laidOut;
+    final returning = _returningFromNothingBuilt;
+    _returningFromNothingBuilt = false;
     if (range == previous && childCount == _childCount) return;
 
-    if (previous != null) {
+    if (returning) {
+      // The last layout before this one is stale: the sliver was out of view
+      // in between, so which end it comes back at is what says which way it
+      // is moving.
+      final atEnd = childCount != null && range.end >= childCount;
+      if (range.start == 0 && !atEnd) _travel = ScrollTravel.forward;
+      if (atEnd && range.start > 0) _travel = ScrollTravel.backward;
+    } else if (previous != null) {
       // Compared by midpoint so a range that grows on one side while it
       // shrinks on the other, as on a resize, still reads one way.
       final delta = (range.start + range.end) - (previous.start + previous.end);
@@ -113,6 +123,19 @@ class SliverPrefetcher {
     _laidOut = range;
     _childCount = childCount;
     _scheduleFlush();
+  }
+
+  /// Records a layout that built no children: the sliver is scrolled wholly
+  /// out of the viewport and its cache extent. Called by the delegate instead
+  /// of [reportLayout], because Flutter describes such a layout as `(0, 0)`,
+  /// the same as one that built child 0 alone.
+  ///
+  /// Nothing is reported and nothing is cancelled: what was asked for stays
+  /// outstanding, and the next layout that builds children takes the
+  /// direction of travel from the end of the sliver it comes back at.
+  void reportNoChildrenBuilt() {
+    if (_disposed) return;
+    _returningFromNothingBuilt = true;
   }
 
   /// Forgets that [indices] were reported, so they are reported again if they
