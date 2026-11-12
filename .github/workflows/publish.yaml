@@ -1,0 +1,51 @@
+name: Publish to pub.dev
+
+# Publishes through pub.dev's GitHub Actions OIDC integration, so no personal
+# credentials are involved. pub.dev only accepts tokens from a tag push that
+# matches the pattern configured on the package admin page (v{{version}}).
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+*']
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Lets repo settings require reviewers before a release goes out. Harmless
+    # if pub.dev isn't configured to require it.
+    environment: pub.dev
+    permissions:
+      contents: read
+      id-token: write # Required to mint the OIDC token pub.dev verifies.
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check tag matches pubspec version
+        run: |
+          version=$(sed -n 's/^version: *//p' pubspec.yaml)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match pubspec version $version"
+            exit 1
+          fi
+
+      # Configures the pub.dev OIDC credentials; Flutter's pub reads them.
+      - uses: dart-lang/setup-dart@v1
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter pub get
+        working-directory: example
+
+      - run: dart format --output=none --set-exit-if-changed .
+      - run: flutter analyze
+      - run: flutter test
+      - run: flutter test
+        working-directory: example
+
+      - run: flutter pub publish --dry-run
+      - run: flutter pub publish --force
