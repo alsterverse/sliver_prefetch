@@ -1,4 +1,3 @@
-import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sliver_prefetch/sliver_prefetch.dart';
@@ -39,7 +38,10 @@ class _HarnessState extends State<_Harness> {
           height: 300,
           child: CustomScrollView(
             controller: widget.controller,
-            scrollCacheExtent: const ScrollCacheExtent.pixels(0),
+            // The replacement, scrollCacheExtent, is newer than the oldest
+            // Flutter this package supports.
+            // ignore: deprecated_member_use
+            cacheExtent: 0,
             slivers: [
               if (widget.grid)
                 SliverGrid(
