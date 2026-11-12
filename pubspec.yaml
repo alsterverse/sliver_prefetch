@@ -2,7 +2,7 @@ name: sliver_prefetch
 description: >-
   Prefetch callbacks for SliverList and SliverGrid, modelled on UIKit's
   UICollectionViewDataSourcePrefetching: load data before it scrolls into view.
-version: 0.1.1
+version: 0.1.2
 repository: https://github.com/alsterverse/sliver_prefetch
 issue_tracker: https://github.com/alsterverse/sliver_prefetch/issues
 

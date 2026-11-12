@@ -1,3 +1,9 @@
+## 0.1.2
+
+- Releases are now published from GitHub Actions through pub.dev's automated
+  publishing, under the verified publisher alster.se. No changes to the
+  package's code.
+
 ## 0.1.1
 
 - Fix: a sliver that builds no children is no longer reported as having
