@@ -1,0 +1,12 @@
+# A library resolves against its dependents' constraints, so its lockfile is
+# not committed.
+pubspec.lock
+.dart_tool/
+build/
+.metadata
+example/android/
+example/ios/
+example/linux/
+example/macos/
+example/web/
+example/windows/
