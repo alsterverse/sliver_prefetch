@@ -1,3 +1,11 @@
+## 0.1.5
+
+- Docs: a "Compared with" section in the README, setting the package
+  against a larger `cacheExtent`, infinite_scroll_pagination and
+  visibility_detector, with counts from a new benchmark,
+  `example/tool/cache_extent_benchmark_test.dart`. No changes to the
+  package's code.
+
 ## 0.1.4
 
 - Fix: the window's edges no longer move against the direction of travel.

@@ -72,6 +72,55 @@ ListView.custom(
 Have a delegate of your own? Mix in `SliverPrefetchingDelegateMixin` and
 provide a `prefetcher` getter.
 
+## Compared with
+
+### Why not raise `cacheExtent`?
+
+A bigger cache extent is the usual way to get ahead of the user, and the
+viewport does it by building, laying out and keeping alive every child in
+range: the same distance behind as ahead, whichever way the user is going, and
+with no signal for when something stops being needed. sliver_prefetch leaves
+the cache extent alone and tells your data layer instead, so the widgets come
+later and only the data is early.
+
+Both setups below look 2000 px ahead on a three-column grid of 133 px rows in
+an 800 px viewport:
+
+| | `cacheExtent: 2000` | sliver_prefetch, 2000 px ahead |
+| --- | ---: | ---: |
+| Tiles built for the first frame | 63 | 24 |
+| Tiles alive while scrolling | 111 | 33 |
+| Tiles built in the frame after a jump | 111 | 30 |
+| Tiles built per frame of steady scrolling | 1 | 1 |
+
+Steady scrolling costs the same either way. The difference is the bursts and
+what stays alive: with a big cache extent, every tile in range, behind you as
+well as ahead, holds its widgets, layout and anything it loaded, decoded
+images included. The counts come from
+[`example/tool/cache_extent_benchmark_test.dart`](example/tool/cache_extent_benchmark_test.dart),
+which counts work rather than timing it; how much each tile costs depends on
+the tile. sliver_prefetch's own overhead is one small wrapper widget per child
+(see [Caveats](#caveats)).
+
+### And the packages?
+
+| | sliver_prefetch | [infinite_scroll_pagination](https://pub.dev/packages/infinite_scroll_pagination) | [visibility_detector](https://pub.dev/packages/visibility_detector) |
+| --- | --- | --- | --- |
+| Answers | Which items are about to be needed? | Has the user nearly reached the end? | How much of this widget is visible? |
+| Sees past built children | ✅ | ❌ triggers as built items near the end | ❌ only built widgets |
+| Looks further in the direction of travel | ✅ | — | ❌ |
+| Says when an index is no longer needed | ✅ `onCancelPrefetch` | ❌ | Partly: visibility drops to 0 |
+| Jump to any position | ✅ | ❌ pages load in order | ✅ |
+| Works with your existing list | ✅ swap the delegate | ❌ its own `Paged…` widgets | ✅ wrap each child |
+| Loading, error and empty states | ❌ yours to build | ✅ built in | ❌ |
+
+infinite_scroll_pagination is the better fit when items arrive in pages from
+the start and you want its loading, error and empty states. The two also work
+together: let it append pages, and use sliver_prefetch to fill in each item
+(thumbnails, details) before it scrolls in. visibility_detector reports how
+visible a built widget is, throttled to every 500 ms by default; its
+repository was archived in 2024.
+
 ## How it works
 
 `RenderSliverList` and `RenderSliverGrid` call
