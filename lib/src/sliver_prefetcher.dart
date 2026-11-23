@@ -73,6 +73,13 @@ class SliverPrefetcher {
   Set<int> _outstanding = const {};
   bool _returningFromNothingBuilt = false;
 
+  // The window last reported, and the travel and child count it was worked
+  // out under; its edges are held while those stay the same. See
+  // PrefetchWindow.bounds.
+  IndexRange? _window;
+  ScrollTravel? _windowTravel;
+  int? _windowChildCount;
+
   /// Whether the prefetcher reports anything.
   ///
   /// Turning it off forgets what was outstanding without cancelling it.
@@ -82,6 +89,7 @@ class SliverPrefetcher {
     if (value == _enabled) return;
     _enabled = value;
     _outstanding = const {};
+    _window = null;
     if (value) _scheduleFlush();
   }
 
@@ -107,6 +115,8 @@ class SliverPrefetcher {
     if (range == previous && childCount == _childCount) return;
 
     if (returning) {
+      // The sliver comes back somewhere new; the window it left is no guide.
+      _window = null;
       // The last layout before this one is stale: the sliver was out of view
       // in between, so which end it comes back at is what says which way it
       // is moving.
@@ -151,6 +161,7 @@ class SliverPrefetcher {
   void reset() {
     if (_disposed) return;
     _outstanding = const {};
+    _window = null;
     _scheduleFlush();
   }
 
@@ -177,6 +188,9 @@ class SliverPrefetcher {
     final laidOut = _laidOut;
     if (_disposed || !_enabled || laidOut == null) return;
 
+    final held = _windowTravel == _travel && _windowChildCount == _childCount
+        ? _window
+        : null;
     final target = PrefetchWindow.target(
       laidOut: laidOut,
       childCount: _childCount,
@@ -184,7 +198,18 @@ class SliverPrefetcher {
       ahead: ahead,
       behind: behind,
       includeLaidOut: includeLaidOut,
+      previous: held,
     );
+    _window = PrefetchWindow.bounds(
+      laidOut: laidOut,
+      childCount: _childCount,
+      travel: _travel,
+      ahead: ahead,
+      behind: behind,
+      previous: held,
+    );
+    _windowTravel = _travel;
+    _windowChildCount = _childCount;
     final update = PrefetchWindow.diff(
       outstanding: _outstanding,
       target: target,

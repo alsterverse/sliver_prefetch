@@ -81,7 +81,10 @@ delegate passes that range to the `SliverPrefetcher`, which:
 
 1. infers the direction of travel from how the range moved;
 2. computes the window: `ahead` past the leading edge, `behind` past the
-   trailing one, clipped to `[0, childCount)`;
+   trailing one, clipped to `[0, childCount)`. While the direction holds,
+   neither edge moves backwards, so a `layouts` extent, which follows a
+   laid-out count that rises and falls by a row as rows come and go, does
+   not cancel what is needed a moment later;
 3. reports indices that entered the window to `onPrefetch`, nearest first,
    and indices that left it without being laid out to `onCancelPrefetch`;
 4. does all of this after the frame, once per frame, because layout is no

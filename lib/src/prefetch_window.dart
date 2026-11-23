@@ -88,19 +88,26 @@ class PrefetchUpdate {
 /// The pure calculation behind a [SliverPrefetcher], kept apart from frame
 /// scheduling so it can be tested and reused on its own.
 abstract final class PrefetchWindow {
-  /// The indices worth having ready, given what is laid out now.
+  /// The range worth having ready, laid-out children included, given what is
+  /// laid out now.
   ///
   /// [ahead] extends past the laid-out children in the direction of
   /// [travel], [behind] the other way. Both stop at index 0 and, when it is
-  /// known, at [childCount]. The laid-out children themselves are included
-  /// only when [includeLaidOut] is true.
-  static Set<int> target({
+  /// known, at [childCount].
+  ///
+  /// [previous] is the range this returned for the last layout, if [travel]
+  /// has not changed since. Its edges are held, so that neither moves against
+  /// the direction of travel: a [PrefetchExtent.layouts] extent follows the
+  /// laid-out count, which goes up and down by a row as rows enter and leave
+  /// one at a time, and without the hold the window's leading edge would
+  /// fall back a row and cancel children that are needed a moment later.
+  static IndexRange bounds({
     required IndexRange laidOut,
     required int? childCount,
     required ScrollTravel travel,
     required PrefetchExtent ahead,
     required PrefetchExtent behind,
-    required bool includeLaidOut,
+    IndexRange? previous,
   }) {
     final aheadCount = ahead.resolve(laidOut.length);
     final behindCount = behind.resolve(laidOut.length);
@@ -109,11 +116,45 @@ abstract final class PrefetchWindow {
       ScrollTravel.backward => (behindCount, aheadCount),
     };
 
-    final start = max(0, laidOut.start - before);
-    final unbounded = laidOut.end + after;
-    final end = childCount == null ? unbounded : min(unbounded, childCount);
+    var start = max(0, laidOut.start - before);
+    var end = laidOut.end + after;
+    if (previous != null) {
+      switch (travel) {
+        case ScrollTravel.forward:
+          start = min(max(start, previous.start), laidOut.start);
+          end = max(end, previous.end);
+        case ScrollTravel.backward:
+          start = min(start, previous.start);
+          end = max(min(end, previous.end), laidOut.end);
+      }
+    }
+    if (childCount != null) end = min(end, childCount);
+    return IndexRange(min(start, end), end);
+  }
+
+  /// The indices worth having ready, given what is laid out now.
+  ///
+  /// The indices in [bounds], given the same arguments. The laid-out
+  /// children themselves are included only when [includeLaidOut] is true.
+  static Set<int> target({
+    required IndexRange laidOut,
+    required int? childCount,
+    required ScrollTravel travel,
+    required PrefetchExtent ahead,
+    required PrefetchExtent behind,
+    required bool includeLaidOut,
+    IndexRange? previous,
+  }) {
+    final window = bounds(
+      laidOut: laidOut,
+      childCount: childCount,
+      travel: travel,
+      ahead: ahead,
+      behind: behind,
+      previous: previous,
+    );
     return {
-      for (var i = start; i < end; i++)
+      for (final i in window.indices)
         if (includeLaidOut || !laidOut.contains(i)) i,
     };
   }
