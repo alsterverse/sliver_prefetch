@@ -6,6 +6,8 @@ user gets there. Works with `ListView`, `GridView` and any `SliverList` or
 `SliverGrid`, whatever its layout. Modelled on UIKit's
 [`UICollectionViewDataSourcePrefetching`](https://developer.apple.com/documentation/uikit/uicollectionviewdatasourceprefetching).
 
+![The example grid scrolled side by side: with sliver_prefetch tiles are loaded before they scroll in; loading only what is on screen leaves placeholders.](https://raw.githubusercontent.com/alsterverse/sliver_prefetch/main/doc/demo.webp)
+
 Most Flutter pagination packages answer "the user reached the end, load the
 next page", and own your list to do it. This one answers a different question:
 *which children are about to be needed?* That suits data whose shape you
@@ -79,7 +81,10 @@ delegate passes that range to the `SliverPrefetcher`, which:
 
 1. infers the direction of travel from how the range moved;
 2. computes the window: `ahead` past the leading edge, `behind` past the
-   trailing one, clipped to `[0, childCount)`;
+   trailing one, clipped to `[0, childCount)`. While the direction holds,
+   neither edge moves backwards, so a `layouts` extent, which follows a
+   laid-out count that rises and falls by a row as rows come and go, does
+   not cancel what is needed a moment later;
 3. reports indices that entered the window to `onPrefetch`, nearest first,
    and indices that left it without being laid out to `onCancelPrefetch`;
 4. does all of this after the frame, once per frame, because layout is no
@@ -126,7 +131,8 @@ item size and column count on its own.
 
 [`example/`](example/lib/main.dart) is a 1,000-cell grid over a repository
 that takes 600 ms per page, with a switch to compare prefetching against
-loading only what is on screen.
+loading only what is on screen. The demo above is rendered from it by
+[`example/tool/record_demo.sh`](example/tool/record_demo.sh).
 
 ## License
 

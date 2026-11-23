@@ -36,6 +36,8 @@ class SlowRepository extends ChangeNotifier {
   final int pageSize;
   final Map<int, Color> _items = {};
   final Map<int, Timer> _pending = {};
+  // For each pending page, the indices on it still asked for.
+  final Map<int, Set<int>> _wanted = {};
   final _random = Random(1);
 
   int fetches = 0;
@@ -47,11 +49,14 @@ class SlowRepository extends ChangeNotifier {
   /// already on their way.
   void load(List<int> indices) {
     for (final index in indices) {
+      if (_items.containsKey(index)) continue;
       final page = index ~/ pageSize;
-      if (_items.containsKey(index) || _pending.containsKey(page)) continue;
+      (_wanted[page] ??= {}).add(index);
+      if (_pending.containsKey(page)) continue;
       fetches++;
       _pending[page] = Timer(const Duration(milliseconds: 600), () {
         _pending.remove(page);
+        _wanted.remove(page);
         for (var i = page * pageSize; i < (page + 1) * pageSize; i++) {
           _items[i] = Color(0xFF000000 | _random.nextInt(0xFFFFFF));
         }
@@ -63,10 +68,14 @@ class SlowRepository extends ChangeNotifier {
 
   /// Drops pages none of whose items are still wanted.
   void cancel(List<int> indices) {
-    for (final page in indices.map((i) => i ~/ pageSize).toSet()) {
-      final timer = _pending.remove(page);
-      if (timer == null) continue;
-      timer.cancel();
+    for (final index in indices) {
+      final page = index ~/ pageSize;
+      final wanted = _wanted[page];
+      if (wanted == null) continue;
+      wanted.remove(index);
+      if (wanted.isNotEmpty) continue;
+      _wanted.remove(page);
+      _pending.remove(page)?.cancel();
       cancels++;
     }
     notifyListeners();

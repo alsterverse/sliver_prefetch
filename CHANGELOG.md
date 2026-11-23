@@ -1,3 +1,20 @@
+## 0.1.4
+
+- Fix: the window's edges no longer move against the direction of travel.
+  `PrefetchExtent.layouts` follows the laid-out count, which rises and falls
+  by a row as rows enter and leave one at a time, so the leading edge fell
+  back a row, cancelled children needed a moment later and asked for them
+  again on the next layout. The hold lifts when the direction changes, on
+  `reset`, on re-enabling, when the child count changes and when a sliver
+  comes back into view.
+- Add `PrefetchWindow.bounds`, and a `previous` parameter to
+  `PrefetchWindow.target`, for the range with its held edges.
+- Example: the repository cancels a pending page only once none of its
+  items are wanted, as its documentation said.
+- Docs: an animated demo in the README and on pub.dev compares the example
+  grid with and without the look-ahead. `example/tool/record_demo.sh`
+  renders it.
+
 ## 0.1.3
 
 - Supports Flutter 3.19 and newer (Dart 3.3), down from 3.41. No changes to

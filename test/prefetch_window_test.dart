@@ -82,6 +82,98 @@ void main() {
     });
   });
 
+  group('PrefetchWindow.bounds', () {
+    IndexRange bounds({
+      required IndexRange laidOut,
+      ScrollTravel travel = ScrollTravel.forward,
+      IndexRange? previous,
+      int? childCount = 100,
+      PrefetchExtent behind = PrefetchExtent.none,
+    }) =>
+        PrefetchWindow.bounds(
+          laidOut: laidOut,
+          childCount: childCount,
+          travel: travel,
+          ahead: const PrefetchExtent.layouts(1),
+          behind: behind,
+          previous: previous,
+        );
+
+    test('covers the laid-out children and both extents', () {
+      expect(
+        bounds(
+          laidOut: const IndexRange(10, 15),
+          behind: const PrefetchExtent.items(2),
+        ),
+        const IndexRange(8, 20),
+      );
+    });
+
+    test('holds the leading edge when the laid-out count dips', () {
+      // A row entered, then the top row left: 12 laid out, then 9.
+      final wide = bounds(laidOut: const IndexRange(0, 12));
+      expect(wide, const IndexRange(0, 24));
+      expect(
+        bounds(laidOut: const IndexRange(3, 12), previous: wide),
+        const IndexRange(3, 24),
+      );
+      expect(
+        bounds(laidOut: const IndexRange(3, 12)),
+        const IndexRange(3, 21),
+        reason: 'without the hold the edge falls back a row',
+      );
+    });
+
+    test('holds the trailing edge too', () {
+      const behind = PrefetchExtent.layouts(1);
+      final narrow = bounds(laidOut: const IndexRange(9, 18), behind: behind);
+      expect(narrow, const IndexRange(0, 27));
+      final wide = bounds(
+        laidOut: const IndexRange(9, 21),
+        behind: behind,
+        previous: narrow,
+      );
+      expect(wide.start, 0);
+      final later = bounds(
+        laidOut: const IndexRange(15, 24),
+        behind: behind,
+        previous: const IndexRange(9, 33),
+      );
+      expect(later.start, 9, reason: 'the trailing edge only moves forward');
+    });
+
+    test('holds against travel backward as well', () {
+      expect(
+        bounds(
+          laidOut: const IndexRange(50, 59),
+          travel: ScrollTravel.backward,
+          previous: const IndexRange(38, 62),
+        ),
+        const IndexRange(38, 59),
+      );
+    });
+
+    test('never cuts into the laid-out children', () {
+      expect(
+        bounds(
+          laidOut: const IndexRange(5, 30),
+          previous: const IndexRange(10, 40),
+        ),
+        const IndexRange(5, 55),
+      );
+    });
+
+    test('stops at the child count', () {
+      expect(
+        bounds(
+          laidOut: const IndexRange(80, 90),
+          previous: const IndexRange(70, 110),
+        ),
+        const IndexRange(80, 100),
+      );
+    });
+  });
+
   group('PrefetchWindow.diff', () {
     test('reports new indices in arrival order', () {
       final update = PrefetchWindow.diff(

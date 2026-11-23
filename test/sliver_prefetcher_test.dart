@@ -197,6 +197,35 @@ void main() {
     ]);
   });
 
+  testWidgets('a laid-out count that dips does not cancel the leading edge', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _Harness(
+        prefetcher: prefetcher(ahead: const PrefetchExtent.layouts(1)),
+        controller: controller,
+        grid: true,
+      ),
+    );
+    prefetched.clear();
+
+    // Half a row down, four rows are laid out; a full row down, three again.
+    // The look-ahead follows the count, 12 then 9, but the window keeps its
+    // leading edge instead of cancelling 21-23 and asking for them again.
+    controller.jumpTo(50);
+    await tester.pump();
+    controller.jumpTo(100);
+    await tester.pump();
+    controller.jumpTo(150);
+    await tester.pump();
+
+    expect(prefetched, [
+      [18, 19, 20, 21, 22, 23],
+      [24, 25, 26],
+    ]);
+    expect(cancelled, isEmpty);
+  });
+
   testWidgets('invalidate and reset report indices again', (tester) async {
     final p = prefetcher();
     await tester.pumpWidget(_Harness(prefetcher: p, controller: controller));
