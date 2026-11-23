@@ -69,13 +69,14 @@ void main() {
     PrefetchExtent ahead = const PrefetchExtent.items(3),
     PrefetchExtent behind = PrefetchExtent.none,
     bool includeLaidOut = false,
-  }) => SliverPrefetcher(
-    ahead: ahead,
-    behind: behind,
-    includeLaidOut: includeLaidOut,
-    onPrefetch: prefetched.add,
-    onCancelPrefetch: cancelled.add,
-  );
+  }) =>
+      SliverPrefetcher(
+        ahead: ahead,
+        behind: behind,
+        includeLaidOut: includeLaidOut,
+        onPrefetch: prefetched.add,
+        onCancelPrefetch: cancelled.add,
+      );
 
   setUp(() {
     prefetched = [];
@@ -116,7 +117,8 @@ void main() {
     expect(cancelled, isEmpty);
   });
 
-  testWidgets('turning around cancels what is now behind and looks the '
+  testWidgets(
+      'turning around cancels what is now behind and looks the '
       'other way', (tester) async {
     final p = prefetcher();
     await tester.pumpWidget(_Harness(prefetcher: p, controller: controller));

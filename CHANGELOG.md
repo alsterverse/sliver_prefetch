@@ -1,3 +1,10 @@
+## 0.1.3
+
+- Supports Flutter 3.19 and newer (Dart 3.3), down from 3.41. No changes to
+  the package's behaviour; CI now tests on 3.19.
+- Docs: `ListView.custom` and `GridView.custom` take the prefetching delegate
+  too; the README says so and tests pin it.
+
 ## 0.1.2
 
 - Releases are now published from GitHub Actions through pub.dev's automated

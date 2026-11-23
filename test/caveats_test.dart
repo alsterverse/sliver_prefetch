@@ -39,9 +39,9 @@ class _CounterState extends State<_Counter> {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: () => setState(() => _taps++),
-    child: Text('${widget.id}: $_taps'),
-  );
+        onTap: () => setState(() => _taps++),
+        child: Text('${widget.id}: $_taps'),
+      );
 }
 
 Widget _list({
@@ -49,37 +49,38 @@ Widget _list({
   required NullableIndexedWidgetBuilder builder,
   int? childCount,
   ScrollController? controller,
-}) => Directionality(
-  textDirection: TextDirection.ltr,
-  child: Center(
-    child: SizedBox(
-      height: 300,
-      child: CustomScrollView(
-        controller: controller,
-        // ignore: deprecated_member_use
-        cacheExtent: 0,
-        slivers: [
-          SliverFixedExtentList(
-            itemExtent: 100,
-            delegate: PrefetchingSliverChildBuilderDelegate(
-              builder,
-              childCount: childCount,
-              prefetcher: prefetcher,
-            ),
+}) =>
+    Directionality(
+      textDirection: TextDirection.ltr,
+      child: Center(
+        child: SizedBox(
+          height: 300,
+          child: CustomScrollView(
+            controller: controller,
+            // ignore: deprecated_member_use
+            cacheExtent: 0,
+            slivers: [
+              SliverFixedExtentList(
+                itemExtent: 100,
+                delegate: PrefetchingSliverChildBuilderDelegate(
+                  builder,
+                  childCount: childCount,
+                  prefetcher: prefetcher,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
-    ),
-  ),
-);
+    );
 
 void main() {
   late List<List<int>> prefetched;
 
   SliverPrefetcher prefetcher() => SliverPrefetcher(
-    ahead: const PrefetchExtent.items(3),
-    onPrefetch: prefetched.add,
-  );
+        ahead: const PrefetchExtent.items(3),
+        onPrefetch: prefetched.add,
+      );
 
   setUp(() => prefetched = []);
 
@@ -131,7 +132,8 @@ void main() {
     expect(prefetched, isEmpty);
   });
 
-  testWidgets('a sliver below the viewport builds child 0 and looks ahead '
+  testWidgets(
+      'a sliver below the viewport builds child 0 and looks ahead '
       'from it', (tester) async {
     final above = SliverPrefetcher(onPrefetch: (_) {});
     final belowPrefetched = <List<int>>[];
@@ -140,13 +142,13 @@ void main() {
       onPrefetch: belowPrefetched.add,
     );
     SliverFixedExtentList list(SliverPrefetcher p) => SliverFixedExtentList(
-      itemExtent: 100,
-      delegate: PrefetchingSliverChildBuilderDelegate(
-        (context, index) => Text('$index'),
-        childCount: 50,
-        prefetcher: p,
-      ),
-    );
+          itemExtent: 100,
+          delegate: PrefetchingSliverChildBuilderDelegate(
+            (context, index) => Text('$index'),
+            childCount: 50,
+            prefetcher: p,
+          ),
+        );
     await tester.pumpWidget(
       Directionality(
         textDirection: TextDirection.ltr,

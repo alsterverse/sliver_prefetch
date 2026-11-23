@@ -1,21 +1,22 @@
 name: sliver_prefetch
 description: >-
-  Prefetch callbacks for SliverList and SliverGrid, modelled on UIKit's
-  UICollectionViewDataSourcePrefetching: load data before it scrolls into view.
-version: 0.1.2
+  Know which list and grid items are about to scroll into view, and preload
+  their data, images or video before the user gets there. Works with any
+  SliverList or SliverGrid.
+version: 0.1.3
 repository: https://github.com/alsterverse/sliver_prefetch
 issue_tracker: https://github.com/alsterverse/sliver_prefetch/issues
 
 environment:
-  sdk: ^3.8.0
-  flutter: '>=3.41.0'
+  sdk: ^3.3.0
+  flutter: '>=3.19.0'
 
 dependencies:
   flutter:
     sdk: flutter
 
 dev_dependencies:
-  flutter_lints: ^6.0.0
+  flutter_lints: '>=3.0.0 <7.0.0'
   flutter_test:
     sdk: flutter
 
@@ -23,5 +24,5 @@ topics:
   - scrolling
   - pagination
   - prefetch
-  - sliver
-  - performance
+  - infinite-scroll
+  - lazy-loading

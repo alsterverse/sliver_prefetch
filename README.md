@@ -1,9 +1,10 @@
 # sliver_prefetch
 
-Prefetch callbacks for Flutter slivers, modelled on UIKit's
+Know which items of a Flutter list or grid are about to scroll into view, and
+which no longer are, so you can preload their data, images or video before the
+user gets there. Works with `ListView`, `GridView` and any `SliverList` or
+`SliverGrid`, whatever its layout. Modelled on UIKit's
 [`UICollectionViewDataSourcePrefetching`](https://developer.apple.com/documentation/uikit/uicollectionviewdatasourceprefetching).
-Learn which indices are about to scroll into view, and which no longer are,
-for any `SliverList` or `SliverGrid`, whatever its layout.
 
 Most Flutter pagination packages answer "the user reached the end, load the
 next page", and own your list to do it. This one answers a different question:
@@ -51,6 +52,19 @@ class _GalleryState extends State<Gallery> {
     ],
   );
 }
+```
+
+Using `ListView` or `GridView`? Use their `.custom` constructors and pass the
+same delegate as `childrenDelegate`:
+
+```dart
+ListView.custom(
+  childrenDelegate: PrefetchingSliverChildBuilderDelegate(
+    (context, index) => ItemTile(index),
+    childCount: repository.count,
+    prefetcher: _prefetcher,
+  ),
+)
 ```
 
 Have a delegate of your own? Mix in `SliverPrefetchingDelegateMixin` and

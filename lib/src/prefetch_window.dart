@@ -16,7 +16,7 @@ class IndexRange {
   /// The range of children a sliver reported from
   /// `SliverChildDelegate.didFinishLayout`, whose bounds are both inclusive.
   const IndexRange.laidOut(int firstIndex, int lastIndex)
-    : this(firstIndex, lastIndex + 1);
+      : this(firstIndex, lastIndex + 1);
 
   /// The first index in the range.
   final int start;
@@ -131,12 +131,11 @@ abstract final class PrefetchWindow {
   }) {
     final prefetch = target.difference(outstanding).toList()
       ..sort(_byArrival(laidOut, travel));
-    final cancel =
-        outstanding
-            .difference(target)
-            .where((i) => !laidOut.contains(i))
-            .toList()
-          ..sort();
+    final cancel = outstanding
+        .difference(target)
+        .where((i) => !laidOut.contains(i))
+        .toList()
+      ..sort();
     return PrefetchUpdate(
       prefetch: prefetch,
       cancel: cancel,
@@ -156,9 +155,8 @@ abstract final class PrefetchWindow {
             ? i - laidOut.start
             : laidOut.end - 1 - i;
       }
-      final isAhead = travel == ScrollTravel.forward
-          ? i >= laidOut.end
-          : i < laidOut.start;
+      final isAhead =
+          travel == ScrollTravel.forward ? i >= laidOut.end : i < laidOut.start;
       final distance = i >= laidOut.end ? i - laidOut.end : laidOut.start - i;
       // Laid-out children rank below any distance, ahead before behind.
       return laidOut.length + (isAhead ? 0 : 1 << 30) + distance;

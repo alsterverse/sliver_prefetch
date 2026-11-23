@@ -18,13 +18,13 @@ class ExampleApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => WidgetsApp(
-    title: 'sliver_prefetch',
-    color: _accent,
-    textStyle: const TextStyle(color: _text, fontSize: 14),
-    pageRouteBuilder: <T>(settings, builder) =>
-        PageRouteBuilder<T>(pageBuilder: (context, _, _) => builder(context)),
-    home: const GalleryScreen(),
-  );
+        title: 'sliver_prefetch',
+        color: _accent,
+        textStyle: const TextStyle(color: _text, fontSize: 14),
+        pageRouteBuilder: <T>(settings, builder) => PageRouteBuilder<T>(
+            pageBuilder: (context, _, __) => builder(context)),
+        home: const GalleryScreen(),
+      );
 }
 
 /// A data source whose shape is known up front but whose items arrive in
@@ -161,19 +161,18 @@ class _GalleryScreenState extends State<GalleryScreen> {
                       sliver: SliverGrid(
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              mainAxisSpacing: 4,
-                              crossAxisSpacing: 4,
-                            ),
+                          crossAxisCount: 3,
+                          mainAxisSpacing: 4,
+                          crossAxisSpacing: 4,
+                        ),
                         delegate: PrefetchingSliverChildBuilderDelegate(
                           (context, index) => _Tile(
                             index: index,
                             color: _repository.itemAt(index),
                           ),
                           childCount: _repository.count,
-                          prefetcher: _prefetching
-                              ? _prefetcher
-                              : _onScreenOnly,
+                          prefetcher:
+                              _prefetching ? _prefetcher : _onScreenOnly,
                         ),
                       ),
                     ),
