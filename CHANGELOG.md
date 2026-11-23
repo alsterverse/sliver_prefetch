@@ -1,3 +1,9 @@
+## 0.1.4
+
+- Docs: an animated demo in the README and on pub.dev compares the example
+  grid with and without the look-ahead. `example/tool/record_demo.sh`
+  renders it. No changes to the package's code.
+
 ## 0.1.3
 
 - Supports Flutter 3.19 and newer (Dart 3.3), down from 3.41. No changes to

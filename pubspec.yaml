@@ -3,7 +3,7 @@ description: >-
   Know which list and grid items are about to scroll into view, and preload
   their data, images or video before the user gets there. Works with any
   SliverList or SliverGrid.
-version: 0.1.3
+version: 0.1.4
 repository: https://github.com/alsterverse/sliver_prefetch
 issue_tracker: https://github.com/alsterverse/sliver_prefetch/issues
 
@@ -26,3 +26,10 @@ topics:
   - prefetch
   - infinite-scroll
   - lazy-loading
+
+screenshots:
+  - description: >-
+      A slow-loading grid scrolled side by side: with sliver_prefetch, tiles
+      are loaded before they scroll in; loading only what is on screen leaves
+      placeholders.
+    path: doc/demo.webp
