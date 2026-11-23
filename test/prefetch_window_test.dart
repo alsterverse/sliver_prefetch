@@ -21,14 +21,15 @@ void main() {
       PrefetchExtent ahead = const PrefetchExtent.items(3),
       PrefetchExtent behind = PrefetchExtent.none,
       bool includeLaidOut = false,
-    }) => PrefetchWindow.target(
-      laidOut: laidOut,
-      childCount: childCount,
-      travel: travel,
-      ahead: ahead,
-      behind: behind,
-      includeLaidOut: includeLaidOut,
-    );
+    }) =>
+        PrefetchWindow.target(
+          laidOut: laidOut,
+          childCount: childCount,
+          travel: travel,
+          ahead: ahead,
+          behind: behind,
+          includeLaidOut: includeLaidOut,
+        );
 
     test('looks ahead past the end when travelling forward', () {
       expect(target(), {15, 16, 17});

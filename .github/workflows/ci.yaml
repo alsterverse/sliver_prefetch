@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         # The oldest Flutter the pubspec admits, and the newest.
-        flutter-version: ['3.41.0', '']
+        flutter-version: ['3.19.0', '']
         channel: [stable]
     steps:
       - uses: actions/checkout@v5
