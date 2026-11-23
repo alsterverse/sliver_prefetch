@@ -3,7 +3,7 @@ description: >-
   Know which list and grid items are about to scroll into view, and preload
   their data, images or video before the user gets there. Works with any
   SliverList or SliverGrid.
-version: 0.1.4
+version: 0.1.5
 repository: https://github.com/alsterverse/sliver_prefetch
 issue_tracker: https://github.com/alsterverse/sliver_prefetch/issues
 
